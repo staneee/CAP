@@ -1,0 +1,42 @@
+using System;
+
+using Microsoft.Data.Sqlite;
+
+namespace DotNetCore.CAP.Sqlite.Test
+{
+    public static class ConnectionUtil
+    {
+        private const string ConnectionStringTemplateVariable = "Cap_Sqlite_ConnectionString";
+
+        private const string MasterDatabaseName = "information_schema";
+        private const string DefaultDatabaseName = "cap_test";
+
+        private const string DefaultConnectionString =
+            @"Server=localhost;Database=cap_test;Uid=root;Pwd=123123;Allow User Variables=True;SslMode=none;";
+
+        public static string GetDatabaseName()
+        {
+            return DefaultDatabaseName;
+        }
+
+        public static string GetMasterConnectionString()
+        {
+            return GetConnectionString().Replace(DefaultDatabaseName, MasterDatabaseName);
+        }
+
+        public static string GetConnectionString()
+        {
+            return
+                Environment.GetEnvironmentVariable(ConnectionStringTemplateVariable) ??
+                DefaultConnectionString;
+        }
+
+        public static SqliteConnection CreateConnection(string connectionString = null)
+        {
+            connectionString ??= GetConnectionString();
+            var connection = new SqliteConnection(connectionString);
+            connection.Open();
+            return connection;
+        }
+    }
+}
